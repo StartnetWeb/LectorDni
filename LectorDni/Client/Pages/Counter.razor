@@ -2,23 +2,37 @@
 @using BlazorBarcodeScanner.ZXing.JS
 @inject IRepositorio repositorio
 
-<BlazorBarcodeScanner.ZXing.JS.BarcodeReader Title="Lector de Dni"
+@if (mostrarMensaje)
+{
+    <hr />
+    <div class="alert alert-@tipoMensaje" role="alert">
+        @mensaje
+    </div>
+}
+
+<BlazorBarcodeScanner.ZXing.JS.BarcodeReader @ref="_reader"
+                                             Title="Lector de Dni"
                                              StartCameraAutomatically="false"
-                                             ShowStart="true"
-                                             ShowReset="true"
+                                             ShowStart="false"
+                                             ShowReset="false"
                                              ShowToggleTorch="false"
-                                             ShowVideoDeviceList="false"
+                                             ShowVideoDeviceList="true"
                                              ShowResult="false"
-                                             VideoHeight="200"
                                              OnBarcodeReceived="LocalReceivedBarcodeText" />
+
+<button @onclick="@(() => LeerDni())" class="btn btn-primary">Leer Dni</button>
+<button @onclick="@(() => CerrarLector())" class="btn btn-warning">Cerrar</button>
 
 @*<input @bind="LocalBarcodeText" readonly class="form-control" />*@
 
 @code {
     private BarcodeReader _reader;
-    private string url = "https://localhost:44300/";
-    private string LocalBarcodeText;
+    private string url = "https://localhost:44300/", LocalBarcodeText, tipoMensaje, mensaje;
     private DatosDni DatosDni;
+    private bool mostrarMensaje = false;
+    private int errorAlLeer = 0;
+    [Inject]
+    protected IJSRuntime ijsRuntime { get; set; }
 
     private async void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
     {
@@ -27,30 +41,66 @@
 
         string[] datos = LocalBarcodeText.Split('@');
 
-        DatosDni = new DatosDni
+        if (datos.Length == 8)
         {
-            NroTramite = datos[0],
-            Apellido = datos[1],
-            Nombre = datos[2],
-            Sexo = datos[3],
-            Dni = datos[4],
-            Ejemplar = datos[5],
-            FechaNacimiento = datos[6],
-            FechaEmision = datos[7],
-            Dato = datos[8]
-        };
+            DatosDni = new DatosDni
+            {
+                NroTramite = datos[0],
+                Apellido = datos[1],
+                Nombre = datos[2],
+                Sexo = datos[3],
+                Dni = datos[4],
+                Ejemplar = datos[5],
+                FechaNacimiento = datos[6],
+                FechaEmision = datos[7],
+                Dato = ""
+            };
+        }
+        else if (datos.Length == 9)
+        {
+            DatosDni = new DatosDni
+            {
+                NroTramite = datos[0],
+                Apellido = datos[1],
+                Nombre = datos[2],
+                Sexo = datos[3],
+                Dni = datos[4],
+                Ejemplar = datos[5],
+                FechaNacimiento = datos[6],
+                FechaEmision = datos[7],
+                Dato = datos[8]
+            };
+        }
 
         var httpResponse = await repositorio.Post<DatosDni, DatosDni>("api/LeerDni", DatosDni);
 
-        _reader.StopDecoding();
 
         if (!httpResponse.Error)
         {
             //Mostrar Mensaje lectura correcta
+            mostrarMensaje = true;
+            tipoMensaje = "success";
+            mensaje = "Dni de " + DatosDni.Nombre + " leido correctamente";
+            errorAlLeer = 0;
         }
         else
         {
             //Mostrar Mensaje lectura incorrecta
+            mostrarMensaje = true;
+            tipoMensaje = "danger";
+            mensaje = "Error al Leer el dni(" + errorAlLeer + ")";
+            errorAlLeer += 1;
         }
+    }
+
+    private async void LeerDni()
+    {
+        _reader.StartDecoding();
+    }
+
+    private async void CerrarLector()
+    {
+        _reader.StopDecoding();
+        mostrarMensaje = false;
     }
 }

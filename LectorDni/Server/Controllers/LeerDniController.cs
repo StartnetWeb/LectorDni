@@ -30,7 +30,7 @@ namespace LectorDni.Server.Controllers
         {
             try
             {
-                string id = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                string id = this.User.FindFirst("name").Value;
 
                 lecturaDni.UserId = id;
 
