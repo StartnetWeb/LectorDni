@@ -1,0 +1,56 @@
+﻿@page "/counter"
+@using BlazorBarcodeScanner.ZXing.JS
+@inject IRepositorio repositorio
+
+<BlazorBarcodeScanner.ZXing.JS.BarcodeReader Title="Lector de Dni"
+                                             StartCameraAutomatically="false"
+                                             ShowStart="true"
+                                             ShowReset="true"
+                                             ShowToggleTorch="false"
+                                             ShowVideoDeviceList="false"
+                                             ShowResult="false"
+                                             VideoHeight="200"
+                                             OnBarcodeReceived="LocalReceivedBarcodeText" />
+
+@*<input @bind="LocalBarcodeText" readonly class="form-control" />*@
+
+@code {
+    private BarcodeReader _reader;
+    private string url = "https://localhost:44300/";
+    private string LocalBarcodeText;
+    private DatosDni DatosDni;
+
+    private async void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        this.LocalBarcodeText = args.BarcodeText;
+        StateHasChanged();
+
+        string[] datos = LocalBarcodeText.Split('@');
+
+        DatosDni = new DatosDni
+        {
+            NroTramite = datos[0],
+            Apellido = datos[1],
+            Nombre = datos[2],
+            Sexo = datos[3],
+            Dni = datos[4],
+            Ejemplar = datos[5],
+            FechaNacimiento = datos[6],
+            FechaEmision = datos[7],
+            Dato = datos[8]
+        };
+
+        var httpResponse = await repositorio.Post<DatosDni, DatosDni>("api/LeerDni", DatosDni);
+
+        _reader.StopDecoding();
+
+        if (!httpResponse.Error)
+        {
+            //Mostrar Mensaje lectura correcta
+        }
+        else
+        {
+            //Mostrar Mensaje lectura incorrecta
+        }
+    }
+}
