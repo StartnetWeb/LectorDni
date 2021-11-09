@@ -1,6 +1,9 @@
-﻿@page "/counter"
+﻿@page "/lector"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using BlazorBarcodeScanner.ZXing.JS
 @inject IRepositorio repositorio
+@attribute [Authorize]
 
 @if (mostrarMensaje)
 {
@@ -69,6 +72,21 @@
                 FechaNacimiento = datos[6],
                 FechaEmision = datos[7],
                 Dato = datos[8]
+            };
+        }
+        else if (datos.Length == 16)
+        {
+            DatosDni = new DatosDni
+            {
+                NroTramite = datos[9],
+                Apellido = datos[3],
+                Nombre = datos[4],
+                Sexo = datos[7],
+                Dni = datos[0],
+                Ejemplar = datos[1],
+                FechaNacimiento = datos[6],
+                FechaEmision = datos[8],
+                Dato = ""
             };
         }
 
