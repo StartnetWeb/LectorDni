@@ -1,7 +1,27 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+<AuthorizeView>
+    <Authorized>
+        <h1>APP Lector DNI</h1>
+        <hr />
+        <div class="col-sm-4">
+            <a href="lector" class="text-decoration-none ">
+                <div class="panel card card-ContentAdmin titulo-Blanco">
+                    <div class="card-body">
+                        <p class="icon iconoPanel">
+                            <i class="icon fa fa-inbox"></i>
+                        </p>
+                        <h4 class="card-title">LECTOR DE DNI</h4>
+                        <p class="card-text">INGRESAR</p>
+                        <div class="progress progress-sm">
+                            <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <br />
+    </Authorized>
+</AuthorizeView>

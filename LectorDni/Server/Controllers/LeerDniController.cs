@@ -30,20 +30,13 @@ namespace LectorDni.Server.Controllers
         {
             try
             {
+                var user = (HttpContext.User.Identity as ClaimsIdentity);
                 string id = this.User.FindFirst("name").Value;
 
                 lecturaDni.UserId = id;
 
                 context.DatosDni.Add(lecturaDni);
                 context.SaveChanges();
-
-                string filePath = Path.Combine(_environment.ContentRootPath, "Lecturas", "Lecturas.txt");
-
-                StreamWriter sw = new StreamWriter(filePath, true);
-
-                sw.WriteLine(lecturaDni.NroTramite + "-" + lecturaDni.Apellido + "-" + lecturaDni.Nombre + "-" + lecturaDni.Sexo + "-" + lecturaDni.Dni + "-" + lecturaDni.Ejemplar + "-" + lecturaDni.FechaNacimiento + "-" + lecturaDni.FechaEmision + "-" + lecturaDni.Dato);
-
-                sw.Close();
 
                 return lecturaDni;
             }
