@@ -24,7 +24,7 @@
                                              OnBarcodeReceived="LocalReceivedBarcodeText" />
 
 <button @onclick="@(() => LeerDni())" class="btn btn-primary">Leer Dni</button>
-<button @onclick="@(() => CerrarLector())" class="btn btn-warning">Cerrar</button>
+<button @onclick="@(() => CerrarLector())" class="btn btn-warning">Cerrar Cámara</button>
 
 @*<input @bind="LocalBarcodeText" readonly class="form-control" />*@
 
@@ -32,7 +32,7 @@
     private BarcodeReader _reader;
     private string url = "https://localhost:44300/", LocalBarcodeText, tipoMensaje, mensaje;
     private DatosDni DatosDni;
-    private bool mostrarMensaje = false;
+    private bool mostrarMensaje = false, camaraAbierta = false;
     private int errorAlLeer = 0;
     [Inject]
     protected IJSRuntime ijsRuntime { get; set; }
@@ -91,7 +91,6 @@
         }
 
         var httpResponse = await repositorio.Post<DatosDni, DatosDni>("api/LeerDni", DatosDni);
-
 
         if (!httpResponse.Error)
         {
